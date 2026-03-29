@@ -14,11 +14,11 @@ Dev tooling: npm (frontend), pip/venv (backend)
 
 ## Repository structure
 
-|- ai/            # legacy prototype Flask app
+|- ai/
 
-|- backend/       # main API, auth, analysis, history
+|- backend/
 
-|- frontend/      # React application
+|- frontend/
 
 |- README.md
 
