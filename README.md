@@ -14,12 +14,15 @@ Dev tooling: npm (frontend), pip/venv (backend)
 
 ## Repository structure
 
-.
-|- ai/            # legacy prototype Flask app (not main runtime)
+|- ai/            # legacy prototype Flask app
+
 |- backend/       # main API, auth, analysis, history
+
 |- frontend/      # React application
+
 |- README.md
-`- .gitignore
+
+|- .gitignore
 
 ## Prerequisites
 
@@ -177,4 +180,4 @@ Slow first analysis request:
 
 ## License
 
-MIT (recommended). Add a LICENSE file before public redistribution.
+MIT.
