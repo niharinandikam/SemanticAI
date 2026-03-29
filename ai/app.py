@@ -1,3 +1,5 @@
+import os
+
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 import pickle
@@ -13,7 +15,8 @@ CORS(app)
 model = pickle.load(open("plagiarism_model.pkl", "rb"))
 
 # Initialize AI engine
-ai = AIAnalyzer(api_key="AIzaSyBiRuD5rmvmUTVecNY335pC85p3Z81Zj5E")
+gemini_api_key = os.getenv("GEMINI_API_KEY")
+ai = AIAnalyzer(api_key=gemini_api_key) if gemini_api_key else None
 
 
 @app.route("/")
@@ -47,8 +50,11 @@ def analyze():
         "matches_found": len(matches)
     }
 
-    # AI explanation
-    explanation = ai.generate_explanation(doc1, doc2, prediction)
+    # AI explanation is optional when GEMINI_API_KEY is not configured.
+    if ai:
+        explanation = ai.generate_explanation(doc1, doc2, prediction)
+    else:
+        explanation = "AI explanation unavailable. Set GEMINI_API_KEY to enable this feature."
 
 
     return jsonify({
