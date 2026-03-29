@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>AI Plagiarism Detector</title>
+</head>
+
+<body>
+
+<h2>AI Plagiarism Detection System</h2>
+
+<textarea id="doc1" rows="10" cols="60" placeholder="Document 1"></textarea>
+
+<br><br>
+
+<textarea id="doc2" rows="10" cols="60" placeholder="Document 2"></textarea>
+
+<br><br>
+
+<button onclick="analyzeDocs()">Analyze</button>
+
+<pre id="result"></pre>
+
+<script>
+
+async function analyzeDocs(){
+
+let doc1 = document.getElementById("doc1").value
+let doc2 = document.getElementById("doc2").value
+
+let response = await fetch("/analyze",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+doc1:doc1,
+doc2:doc2
+})
+
+})
+
+let result = await response.json()
+
+document.getElementById("result").innerText = JSON.stringify(result,null,2)
+
+}
+
+</script>
+
+</body>
+</html>
