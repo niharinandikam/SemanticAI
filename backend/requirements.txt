@@ -1,0 +1,12 @@
+flask
+flask-bcrypt
+flask-cors
+flask-jwt-extended
+flask-pymongo
+python-dotenv
+pdfplumber
+sentence-transformers
+scikit-learn
+nltk
+google-generativeai
+gunicorn

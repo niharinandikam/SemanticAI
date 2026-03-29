@@ -1,0 +1,37 @@
+node_modules/
+
+# production
+build/
+dist/
+
+# misc
+.DS_Store
+*.pem
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# local env files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# coverage
+coverage/
+
+# editor
+.vscode/
+.idea/
+
+# package managers
+.pnp/
+.pnp.js
+
+# cache
+.cache/
+.parcel-cache/
