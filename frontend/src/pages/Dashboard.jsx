@@ -3,7 +3,7 @@ import { Box, Grid, Typography, Card, CardContent, Button, Container, Skeleton }
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { useNavigate } from "react-router-dom";
-import { Add, Analytics, BugReport, AssignmentTurnedIn } from "@mui/icons-material";
+import { Add, Analytics, BugReport, AssignmentTurnedIn, AutoFixHigh } from "@mui/icons-material";
 // --- IMPORT ADDED ---
 import { API_BASE_URL } from "../config";
 
@@ -83,14 +83,53 @@ export default function Dashboard() {
             <Typography variant="body1" sx={{ color: "#94a3b8" }}>Manage your history and view real-time integrity metrics.</Typography>
           </Box>
 
-          <Button 
-            variant="contained" 
-            startIcon={<Add />} 
-            onClick={() => navigate("/upload")} 
-            sx={{ backgroundColor: "#2563eb", borderRadius: "50px", px: { xs: 3, md: 5 }, py: 1.6, mb: { xs: 5, md: 8 }, fontWeight: "bold", textTransform: "none", width: { xs: "100%", sm: "auto" } }}
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: { xs: "column", sm: "row" },
+              gap: 2,
+              mb: { xs: 5, md: 8 },
+            }}
           >
-            Start New Analysis
-          </Button>
+            <Button
+              variant="contained"
+              startIcon={<Add />}
+              onClick={() => navigate("/upload")}
+              sx={{
+                backgroundColor: "#2563eb",
+                borderRadius: "50px",
+                px: { xs: 3, md: 5 },
+                py: 1.6,
+                fontWeight: "bold",
+                textTransform: "none",
+                width: { xs: "100%", sm: "auto" },
+              }}
+            >
+              Start New Analysis
+            </Button>
+
+            <Button
+              variant="outlined"
+              startIcon={<AutoFixHigh />}
+              onClick={() => navigate("/humanize")}
+              sx={{
+                borderColor: "#60a5fa",
+                color: "#bfdbfe",
+                borderRadius: "50px",
+                px: { xs: 3, md: 5 },
+                py: 1.6,
+                fontWeight: "bold",
+                textTransform: "none",
+                width: { xs: "100%", sm: "auto" },
+                "&:hover": {
+                  borderColor: "#93c5fd",
+                  backgroundColor: "rgba(59, 130, 246, 0.12)",
+                },
+              }}
+            >
+              Humanize Text
+            </Button>
+          </Box>
 
           <Grid container spacing={4}>
             <Grid item xs={12} md={4}>

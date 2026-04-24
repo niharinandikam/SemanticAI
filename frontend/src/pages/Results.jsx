@@ -1,9 +1,10 @@
 import React, { useMemo } from "react";
-import { Box, Typography, Card, CardContent, Container, Divider } from "@mui/material";
-import { useLocation } from "react-router-dom";
+import { Box, Typography, Card, CardContent, Container, Divider, Button } from "@mui/material";
+import { useLocation, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { PieChart, Pie, ResponsiveContainer } from "recharts";
+import { ArrowBack } from "@mui/icons-material";
 
 const QUOTE_LIBRARY = {
   low: [
@@ -58,6 +59,7 @@ const QUOTE_LIBRARY = {
 
 export default function Results() {
   const location = useLocation();
+  const navigate = useNavigate();
   
   // Data passed from the Upload.jsx or History.jsx navigate call
   const rawText = location.state?.text || "No content available.";
@@ -110,6 +112,16 @@ export default function Results() {
         "&::-webkit-scrollbar-track": { background: "#000" },
         "&::-webkit-scrollbar-thumb": { background: "#1e293b", borderRadius: "10px" } 
       }}>
+        <Box sx={{ px: { xs: 2, md: 4 }, mb: 1 }}>
+          <Button
+            variant="text"
+            startIcon={<ArrowBack />}
+            onClick={() => navigate("/dashboard")}
+            sx={{ color: "#bfdbfe", textTransform: "none", fontWeight: 700, px: 0 }}
+          >
+            Back
+          </Button>
+        </Box>
         <Container maxWidth="md">
           <Typography variant="h3" fontWeight="800" sx={{ mb: 4, textAlign: "center", background: "linear-gradient(90deg, #ffffff, #60a5fa)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", fontFamily: "'Poppins', sans-serif", fontSize: { xs: "2rem", md: "3rem" } }}>
             Analysis Report

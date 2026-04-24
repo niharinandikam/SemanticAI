@@ -264,14 +264,33 @@ def profile():
 def _extract_text_from_request():
     if "file" in request.files:
         uploaded_file = request.files["file"]
-        if uploaded_file.filename.endswith(".pdf"):
+        filename = (uploaded_file.filename or "").lower()
+
+        if filename.endswith(".pdf"):
             with pdfplumber.open(uploaded_file) as pdf:
                 return " ".join(
                     page.extract_text()
                     for page in pdf.pages
                     if page.extract_text()
                 )
-        return uploaded_file.read().decode("utf-8")
+
+        raw_bytes = uploaded_file.read()
+        if not raw_bytes:
+            return ""
+
+        # Reject clearly binary payloads to avoid garbled text extraction.
+        if b"\x00" in raw_bytes:
+            raise ValueError("Unsupported file type. Please upload a text or PDF file.")
+
+        for encoding in ("utf-8", "utf-8-sig", "utf-16", "cp1251", "latin-1"):
+            try:
+                return raw_bytes.decode(encoding)
+            except UnicodeDecodeError:
+                continue
+
+        raise ValueError(
+            "Could not decode uploaded file. Please save it as UTF-8 text or upload a PDF."
+        )
 
     if request.is_json:
         payload = request.get_json() or {}
@@ -377,6 +396,99 @@ Provide a brief, professional assessment of why this plagiarism level was detect
         return fallback_msg
 
 
+def _humanize_text(text_content):
+    normalized_text = re.sub(r"\s+", " ", text_content).strip()
+    if not normalized_text:
+        return ""
+
+    if gemini_model:
+        try:
+            prompt = f"""
+Rewrite the following text so it reads naturally and human-like.
+
+Requirements:
+- Keep the original meaning and factual content.
+- Keep approximately the same length.
+- Use clear, conversational but professional tone.
+- Return only the rewritten text.
+
+Text:
+{normalized_text}
+"""
+            if gemini_mode == "new":
+                response = gemini_client.models.generate_content(
+                    model=gemini_model,
+                    contents=prompt,
+                )
+                return (response.text or "").strip() or normalized_text
+
+            response = gemini_model.generate_content(prompt)
+            return (response.text or "").strip() or normalized_text
+        except Exception as e:
+            print("Humanize Gemini error:", e)
+
+    fallback_replacements = {
+        r"\butilize\b": "use",
+        r"\bapproximately\b": "about",
+        r"\btherefore\b": "so",
+        r"\bin order to\b": "to",
+        r"\bdo not\b": "don't",
+        r"\bcannot\b": "can't",
+        r"\bit is\b": "it's",
+        r"\bdoes not\b": "doesn't",
+        r"\bhas not\b": "hasn't",
+    }
+
+    humanized_text = normalized_text
+    for pattern, replacement in fallback_replacements.items():
+        humanized_text = re.sub(
+            pattern,
+            replacement,
+            humanized_text,
+            flags=re.IGNORECASE,
+        )
+
+    return humanized_text
+
+
+@app.route("/humanize", methods=["POST"])
+@jwt_required()
+def humanize():
+    try:
+        input_type = "file" if "file" in request.files else "text"
+        original_filename = ""
+
+        if input_type == "file":
+            uploaded_file = request.files.get("file")
+            original_filename = uploaded_file.filename if uploaded_file else ""
+
+        text_content = _extract_text_from_request()
+
+        if not text_content.strip():
+            return jsonify({"msg": "No text content received"}), 400
+
+        humanized_text = _humanize_text(text_content)
+
+        output_filename = ""
+        if input_type == "file":
+            base_name = "humanized_output"
+            if original_filename:
+                base_name = os.path.splitext(original_filename)[0] or base_name
+            output_filename = f"{base_name}_humanized.txt"
+
+        return jsonify({
+            "humanized_text": humanized_text,
+            "input_type": input_type,
+            "output_filename": output_filename,
+        })
+
+    except ValueError as e:
+        return jsonify({"msg": str(e)}), 400
+    except Exception as e:
+        print("Humanize error:", e)
+        return jsonify({"msg": str(e)}), 500
+
+
 @app.route("/analyze", methods=["POST"])
 @jwt_required()
 def analyze():
@@ -425,6 +537,8 @@ def analyze():
             "ai_insight": ai_insight,
         })
 
+    except ValueError as e:
+        return jsonify({"msg": str(e)}), 400
     except Exception as e:
 
         print("Analyze error:", e)

@@ -11,7 +11,7 @@ import {
   CircularProgress,
   Alert
 } from "@mui/material";
-import { CloudUpload, TextFields } from "@mui/icons-material";
+import { CloudUpload, TextFields, ArrowBack } from "@mui/icons-material";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { useNavigate } from "react-router-dom";
@@ -105,6 +105,17 @@ export default function Upload() {
       <Header />
 
       <Box component="main" sx={{ flexGrow: 1, overflowY: "auto", py: 6 }}>
+
+      <Box sx={{ px: { xs: 2, md: 4 }, mb: 1 }}>
+        <Button
+          variant="text"
+          startIcon={<ArrowBack />}
+          onClick={() => navigate("/dashboard")}
+          sx={{ color: "#bfdbfe", textTransform: "none", fontWeight: 700, px: 0 }}
+        >
+          Back
+        </Button>
+      </Box>
 
       <Container maxWidth="md">
 
@@ -219,7 +230,7 @@ export default function Upload() {
             <input
               type="file"
               hidden
-              accept=".pdf"
+              accept=".pdf,.doc,.docx"
               onChange={(e) => setFile(e.target.files[0])}
             />
             <Typography>
