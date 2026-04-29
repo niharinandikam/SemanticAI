@@ -208,7 +208,7 @@ export default function Upload() {
                 opacity: 1,
               },
             }}
-          />
+          /> 
         ) : (
           <Paper
             component="label"
@@ -266,4 +266,4 @@ export default function Upload() {
       <Footer />
     </Box>
   );
-}
+} 

@@ -54,6 +54,25 @@ def tokenize_sentences(text):
             chunks = re.split(r"(?<=[.!?])\s+", text.strip())
             return [chunk for chunk in chunks if chunk]
 
+
+def _tokenize_words(text):
+    return {
+        token
+        for token in re.findall(r"[a-zA-Z]+", text.lower())
+        if len(token) > 2
+    }
+
+
+def _lexical_overlap_ratio(left, right):
+    left_tokens = _tokenize_words(left)
+    right_tokens = _tokenize_words(right)
+
+    if not left_tokens or not right_tokens:
+        return 0.0
+
+    shared = left_tokens.intersection(right_tokens)
+    return len(shared) / min(len(left_tokens), len(right_tokens))
+
 # -----------------------------
 # AI MODEL
 # -----------------------------
@@ -330,6 +349,9 @@ def _check_self_plagiarism(sentences):
 
 def _check_cross_plagiarism(sentences, prev_sentences):
     """Detect plagiarism against previous submissions."""
+    if not prev_sentences:
+        return [{"text": s, "isPlagiarized": False} for s in sentences], 0
+
     model = get_ai_model()
     curr_embeddings = model.encode(sentences, convert_to_numpy=True)
     prev_embeddings = model.encode(prev_sentences, convert_to_numpy=True)
@@ -338,11 +360,26 @@ def _check_cross_plagiarism(sentences, prev_sentences):
     detailed_analysis = []
     plag_count = 0
 
+    semantic_threshold = 0.86
+    lexical_threshold = 0.45
+
     for i, sentence in enumerate(sentences):
-        max_sim = max(sim_matrix[i])
-        is_plag = max_sim > 0.65
+        best_match_idx = int(sim_matrix[i].argmax())
+        max_sim = float(sim_matrix[i][best_match_idx])
+        lexical_overlap = _lexical_overlap_ratio(
+            sentence,
+            prev_sentences[best_match_idx],
+        )
+
+        # Require both semantic and lexical evidence to reduce false positives.
+        is_plag = (
+            max_sim >= semantic_threshold
+            and lexical_overlap >= lexical_threshold
+        )
+
         if is_plag:
             plag_count += 1
+
         detailed_analysis.append({
             "text": sentence,
             "isPlagiarized": bool(is_plag),
@@ -410,6 +447,8 @@ Requirements:
 - Keep the original meaning and factual content.
 - Keep approximately the same length.
 - Use clear, conversational but professional tone.
+- Restructure sentence patterns (not just synonym swaps).
+- Vary transitions and phrasing to avoid mirroring the source sentence-by-sentence.
 - Return only the rewritten text.
 
 Text:
@@ -502,8 +541,13 @@ def analyze():
 
         sentences = tokenize_sentences(text_content)
 
+        # Compare against other users' submissions to avoid unfairly
+        # flagging the same user's revisions as fully plagiarized.
         previous_scans = list(
-            mongo.db.scans.find({}, {"text": 1}).limit(50)
+            mongo.db.scans.find(
+                {"user_email": {"$ne": user_email}},
+                {"text": 1},
+            ).limit(100)
         )
         prev_text = " ".join(
             s.get("text", "") for s in previous_scans if s.get("text")

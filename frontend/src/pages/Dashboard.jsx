@@ -139,7 +139,7 @@ export default function Dashboard() {
               <StatCard title="Plagiarism Detected" value={stats.plagiarized} icon={<BugReport />} color="#f87171" subtitle="Instances needing revision" loading={loading} />
             </Grid>
             <Grid item xs={12} md={4}>
-              <StatCard title="Original Content" value={stats.original} icon={<AssignmentTurnedIn />} color="#60a5fa" subtitle="Validated unique documents" loading={loading} />
+              <StatCard title="Original Content" value={stats.original} icon={<AssignmentTurnedIn />} color="#56e094" subtitle="Validated unique documents" loading={loading} />
             </Grid>
           </Grid>
         </Container>

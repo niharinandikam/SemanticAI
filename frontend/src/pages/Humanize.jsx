@@ -92,7 +92,39 @@ export default function Humanize() {
       output = output.replace(pattern, value);
     });
 
-    return output;
+    output = output
+      .replaceAll(/\bIn addition\b/gi, "Also")
+      .replaceAll(/\bFurthermore\b/gi, "Also")
+      .replaceAll(/\bMoreover\b/gi, "Also")
+      .replaceAll(/\bThus\b/gi, "So")
+      .replaceAll(/\bConsequently\b/gi, "As a result");
+
+    const sentences = output
+      .split(/(?<=[.!?])\s+/)
+      .map((part) => part.trim())
+      .filter(Boolean);
+
+    const rewired = sentences.map((sentence, index) => {
+      if (sentence.length < 60 || !sentence.includes(",")) {
+        return sentence;
+      }
+
+      const commaIndex = sentence.indexOf(",");
+      const first = sentence.slice(0, commaIndex).trim();
+      const second = sentence.slice(commaIndex + 1).trim();
+
+      if (!first || !second) {
+        return sentence;
+      }
+
+      if (index % 2 === 0) {
+        return `${second} ${first}.`;
+      }
+
+      return sentence;
+    });
+
+    return rewired.join(" ");
   };
 
   const getFallbackFileName = () => {
@@ -112,7 +144,7 @@ export default function Humanize() {
       setResultInputType("text");
       setResultFilename("humanized_output.txt");
       setError("");
-      setNotice("Humanize service is unavailable. Displaying a local rewrite.");
+      setNotice("Humanize AI service is unavailable. Displaying a basic local rewrite (limited quality).");
       return true;
     }
 
@@ -131,7 +163,7 @@ export default function Humanize() {
     setResultInputType("file");
     setResultFilename(getFallbackFileName());
     setError("");
-    setNotice("Humanize service is unavailable. Displaying a local rewrite from uploaded file.");
+    setNotice("Humanize AI service is unavailable. Displaying a basic local rewrite from uploaded file (limited quality).");
     return true;
   };
 
