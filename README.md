@@ -71,6 +71,12 @@ cd backend
 gunicorn app:app
 ```
 
+![login page](login.png)
+![SignUp page](signup.png)
+![Home Page](index.png)
+![Dashboard](dashboard.png)
+![History](history.png)
+
 ## Environment variables
 
 Create backend/.env:
