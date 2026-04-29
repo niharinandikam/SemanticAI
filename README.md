@@ -74,7 +74,7 @@ gunicorn app:app
 ![login page](login.png)
 ![SignUp page](signup.png)
 ![Home Page](index.png)
-![Dashboard](dashboard.png)
+![Dashboard](db.png)
 ![History](history.png)
 
 ## Environment variables
